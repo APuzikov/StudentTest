@@ -1,3 +1,5 @@
+package ru.mera.testmanager;
+
 import java.io.IOException;
 
 public class TestManager {

@@ -1,3 +1,5 @@
+package ru.mera.testmanager;
+
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -6,14 +8,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.lang.Math.floor;
-import static java.lang.Math.random;
-
 public class Test {
 
 
     private List<Question> questions = new ArrayList<>();
-    //private List<Answer> answers = new ArrayList<>();
+    //private List<ru.mera.testmanager.Answer> answers = new ArrayList<>();
     private final int minimumPer = 65;
     private final int countOfQuest = 6;
     private final int countOfAnswers = 5;
@@ -43,7 +42,7 @@ public class Test {
 
     boolean getRandomBoolean() {
 
-        return Math.random() < 0.5 ? false : true;
+        return !(Math.random() < 0.5);
 
     }
 
@@ -60,7 +59,6 @@ public class Test {
             if (!m1.matches()) {
 
                 System.out.println("Неверный ввод");
-                continue;
             } else {
                 //System.out.println("Yes");
                 break;

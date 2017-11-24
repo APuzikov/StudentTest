@@ -1,3 +1,5 @@
+package ru.mera.testmanager;
+
 public class Answer {
 
     private final String textOfAnswer;
