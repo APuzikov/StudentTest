@@ -14,8 +14,7 @@ public class Test {
     private List<Question> questions = new ArrayList<>();
     //private List<ru.mera.testmanager.Answer> answers = new ArrayList<>();
     private final int minimumPer = 65;
-    private final int countOfQuest = 6;
-    private final int countOfAnswers = 5;
+
     int countOfcorrect = 0;
 
     public List<Question> getQuestions(){
@@ -24,27 +23,15 @@ public class Test {
 
 
 
-    void questionsInit() {
+    void questionsInit(QuestionLoader questionLoader) {
 
-        for (int i = 0; i < countOfQuest; i++) {
-            List<Answer> answers = new ArrayList<>();
-
-            for (int j = 1; j <= countOfAnswers; j++) {
-                answers.add(new Answer("Text of answer" + j, getRandomBoolean()));
-            }
-
-            questions.add(new Question(i + 1, "Text " + i, answers ));
-
-        }
-    }
-
-
-
-    boolean getRandomBoolean() {
-
-        return !(Math.random() < 0.5);
+        //RandomQuestionsLoader randomQuestionsLoader = new RandomQuestionsLoader(countOfQuest, countOfAnswers);
+        questions = questionLoader.load();
 
     }
+
+
+
 
 
 
@@ -134,7 +121,7 @@ public class Test {
 
     int calculatePercent(int resultOfTest, Test test) {
 
-        return Math.round((float) resultOfTest/test.countOfQuest*100);
+        return Math.round((float) resultOfTest/test.questions.size()*100);
     }
 
 

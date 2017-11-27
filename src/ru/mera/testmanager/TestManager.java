@@ -14,9 +14,11 @@ public class TestManager {
         //BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String input;
         int resultOfTest = 0;
+        final int countOfQuest = 6;
+        final int countOfAnswers = 5;
 
 
-        test.questionsInit();
+        test.questionsInit(new RandomQuestionsLoader(countOfQuest, countOfAnswers));
 
         for (Question question : test.getQuestions()) {
 
