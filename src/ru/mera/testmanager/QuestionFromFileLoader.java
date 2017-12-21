@@ -7,7 +7,6 @@ import java.util.List;
 public class QuestionFromFileLoader implements QuestionLoader {
     private int countOfQuest;
     private String pathToQuestionDirectory;
-    //private String textOfQuestion = "";
 
     public QuestionFromFileLoader(int countOfQuest, String pathToQuestionDirectory) {
         this.countOfQuest = countOfQuest;
@@ -18,7 +17,7 @@ public class QuestionFromFileLoader implements QuestionLoader {
     public List<Question> load() throws  LoadException { //
         List<Question> questions = new ArrayList<>();
         int[] numbersOfQuestion = new int[countOfQuest];
-        String fileName = "";
+        String fileName;
 
         for (int i = 0; i < countOfQuest; i++) { //генерим массив с номерами вопросов для чтения из файла
             while (true) {
@@ -32,15 +31,14 @@ public class QuestionFromFileLoader implements QuestionLoader {
 
         for (int i = 0; i < countOfQuest; i++) { // генерим список вопросов
             fileName = pathToQuestionDirectory + "\\test" + numbersOfQuestion[i] + ".txt";
-            questions.add(buildQuestionFromFile(fileName, i + 1));
-            //System.out.println(fileName);
+            questions.add(buildQuestionFromFile(fileName, i + 1, numbersOfQuestion[i]));
         }
         return questions;
 
     }
 
     private int getRandomNumber(){
-        return (int)Math.round(Math.random() * (getCountOfFiles("C:\\Users\\apuzik\\IdeaProjects\\StudentTest\\questions") - 1)) + 1;
+        return (int)Math.round(Math.random() * (getCountOfFiles(pathToQuestionDirectory) - 1)) + 1;
     }
 
     private boolean checkNumber(int number, int[] numbersOfQuestion){
@@ -58,14 +56,16 @@ public class QuestionFromFileLoader implements QuestionLoader {
         int count = 0;
         File file = new File(path);
         File listFile[] = file.listFiles();
-        for (File file1 : listFile) {
-            if (file1.isFile()) count++;
+        if (listFile != null) {
+            for (File file1 : listFile) {
+                if (file1.isFile()) count++;
+            }
         }
 
         return count;
     }
 
-    private Question buildQuestionFromFile(String fileName, int number) throws LoadException{
+    private Question buildQuestionFromFile(String fileName, int number, int id) throws LoadException{
 
         StringBuffer buffer = new StringBuffer();
         List<Answer> answers = new ArrayList<>();
@@ -81,11 +81,11 @@ public class QuestionFromFileLoader implements QuestionLoader {
                 if (line.equals("----START ANSWERS----")) {
                     flag = true;
 
-                } else if (flag == false) {
+                } else if (!flag) {
                     //продолжаем читать вопрос
                     buffer.append(line).append("\n");
 
-                } else if (flag == true) {
+                } else  {
                     //читаем ответы
                     answers.add(buidAnswerFromString(line));
                 }
@@ -94,7 +94,7 @@ public class QuestionFromFileLoader implements QuestionLoader {
             throw new LoadException("Ошибка при чтении файла " + fileName, e);
         }
 
-        return new Question(number, buffer.toString(), answers);
+        return new Question(number, buffer.toString(), answers, id);
     }
 
     private Answer buidAnswerFromString(String line) {

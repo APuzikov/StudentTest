@@ -5,8 +5,8 @@ import java.util.List;
 
 public class RandomQuestionsLoader implements QuestionLoader {
 
-    int countOfQuest;
-    int countOfAnswers;
+    private int countOfQuest;
+    private int countOfAnswers;
 
     public RandomQuestionsLoader(int countOfQuest, int countOfAnswers) {
         this.countOfQuest = countOfQuest;
@@ -24,7 +24,7 @@ public class RandomQuestionsLoader implements QuestionLoader {
                 answers.add(new Answer("Text of answer" + j, getRandomBoolean()));
             }
 
-            questions.add(new Question(i + 1, "Text " + i, answers ));
+            questions.add(new Question(i + 1, "Text " + i, answers, i));
 
         }
         return questions;
