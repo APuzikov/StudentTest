@@ -42,7 +42,7 @@ public class Registration {
     private boolean checkName(String name){
         Pattern regex = Pattern.compile("[a-zA-Z]+");
         Matcher matcher = regex.matcher(name);
-        return !matcher.matches();
+        return matcher.matches();
     }
 
     private void readEmail(BufferedReader reader) throws IOException{
@@ -59,7 +59,7 @@ public class Registration {
     private boolean checkEmail(String email){
         Pattern regex = Pattern.compile("\\w+([.-]?\\w+)*@\\w+([.-]?\\w+)*\\.\\w{2,4}");
         Matcher matcher = regex.matcher(email);
-        return !matcher.matches();
+        return matcher.matches();
     }
 
     private void readPassword(BufferedReader reader) throws IOException{
@@ -94,13 +94,17 @@ public class Registration {
         try {
 
             TestManager testManager = new TestManager(args[0]);
-            Registration registration = new Registration(testManager.getConnection());
-            BufferedReader reader = registration.getReader();
+            try(Connection connection = testManager.getConnection()) {
+                Registration registration = new Registration(connection);
+                try (BufferedReader reader = registration.getReader()) {
 
-            registration.readName(reader);
-            registration.readEmail(reader);
-            registration.readPassword(reader);
-            registration.saveToDBase(registration.name, registration.email, registration.password);
+                    registration.readName(reader);
+                    registration.readEmail(reader);
+                    registration.readPassword(reader);
+
+                    registration.saveToDBase(registration.name, registration.email, registration.password);
+                }
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
