@@ -41,9 +41,9 @@ public class DBaseQuestionChecker implements QuestionChecker {
                 try(PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO student_test_answers(student_test_question_id, answer_id) VALUES (?, ?);"))
                 {
                         preparedStatement.setInt(1, studentTestQuestionId);
-                    System.out.println(studentTestQuestionId + "-----------------------------------");
+                    //System.out.println(studentTestQuestionId + "-----------------------------------");
                         preparedStatement.setInt(2, question.getAnswers().get(ints[i] - 1).getId());
-                    System.out.println(question.getAnswers().get(ints[i] - 1).getId() + "==================================");
+                    //System.out.println(question.getAnswers().get(ints[i] - 1).getId() + "==================================");
                         preparedStatement.executeUpdate();
                     //System.out.println(studentTestQuestionId + "            +++++++++++++++++++++++++++++++++++++++++++++");
 

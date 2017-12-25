@@ -40,7 +40,7 @@ public class Registration {
     }
 
     private boolean checkName(String name){
-        Pattern regex = Pattern.compile("[a-zA-Z]+");
+        Pattern regex = Pattern.compile("[a-zA-Z]+|[а-яА-Я]+");
         Matcher matcher = regex.matcher(name);
         return matcher.matches();
     }
@@ -92,7 +92,6 @@ public class Registration {
     public static void main(String[] args) {
 
         try {
-
             TestManager testManager = new TestManager(args[0]);
             try(Connection connection = testManager.getConnection()) {
                 Registration registration = new Registration(connection);
