@@ -10,14 +10,21 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class OutPutResultsFromDBase {
+public class OutPutResultsFromDBase implements AutoCloseable{
 
     private Connection connection;
     private String name;
     private int studentId;
+    private BufferedReader reader;
 
     public OutPutResultsFromDBase(Connection connection) {
         this.connection = connection;
+        reader = new BufferedReader(new InputStreamReader(System.in));
+    }
+
+    @Override
+    public void close() throws Exception {
+        reader.close();
     }
 
     public void outPutStudentTest(String name) throws SQLException, IOException {
@@ -134,7 +141,7 @@ public class OutPutResultsFromDBase {
         int outPut;
 
         //try(BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))){
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        //BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             while (true){
                 input = reader.readLine();
                 if (isDigits(input)) {
@@ -150,7 +157,7 @@ public class OutPutResultsFromDBase {
 
     public void readNameFromConsole() throws IOException {
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
         System.out.println("Введите ваше имя:");
         while (true){
             name = reader.readLine();
@@ -166,11 +173,13 @@ public class OutPutResultsFromDBase {
         return matcher.matches();
     }
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
         TestManager testManager = new TestManager(args[0]);
-        OutPutResultsFromDBase outPutResults = new OutPutResultsFromDBase(testManager.getConnection());
-        outPutResults.readNameFromConsole();
-        outPutResults.outPutStudentTest(outPutResults.name);
+        try (OutPutResultsFromDBase outPutResults = new OutPutResultsFromDBase(testManager.getConnection())) {
 
+            outPutResults.readNameFromConsole();
+            outPutResults.outPutStudentTest(outPutResults.name);
+
+        }
     }
 }
