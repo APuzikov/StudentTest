@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,69 +65,95 @@ public class OutPutResultsFromDBase implements AutoCloseable{
 
     public void outPutStudentTestQuestion() throws SQLException, IOException {
 
-        int studentTestId;
+        int studentTestId = -1;
         int studentTestQuestionId;
         int questionId;
 
-        System.out.println("Для просмотра вопросов выберите № теста:");
-        //System.out.println("id of student --------------------------- " + studentId);
-        studentTestId = digitInput();
+        while (studentTestId != 0) {
 
-        try(PreparedStatement preparedStatement2 = connection.prepareStatement("SELECT student_id FROM student_test WHERE id =  ?")) {
-            preparedStatement2.setInt(1, studentTestId);
-            ResultSet resultSet2 = preparedStatement2.executeQuery();
+            List<Integer> numbersOfQuestions = new ArrayList<>();
 
-            if (resultSet2.next() && resultSet2.getInt(1) == studentId) {
-                try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM student_test_question WHERE test_id = ?")) {
-                    preparedStatement.setInt(1, studentTestId);
-                    ResultSet resultSet = preparedStatement.executeQuery();
+            System.out.println("Для просмотра вопросов выберите № теста,");
+            System.out.println("или введите 'exit' для выхода:");
+            studentTestId = digitInput();
 
-                    while (resultSet.next()) {
-                        studentTestQuestionId = resultSet.getInt(1);
-                        questionId = resultSet.getInt(3);
-                        try (PreparedStatement preparedStatement1 = connection.prepareStatement("SELECT text_of_question FROM questions where id = ?")) {
-                            preparedStatement1.setInt(1, questionId);
-                            ResultSet resultSet1 = preparedStatement1.executeQuery();
-                            if (resultSet1.next()) {
-                                System.out.println("№ вопроса в тесте: " + studentTestQuestionId + "\n" + resultSet1.getString(1));
+            if (studentTestId != 0) {
+                try (PreparedStatement preparedStatement2 = connection.prepareStatement("SELECT student_id FROM student_test WHERE id =  ?")) {
+                    preparedStatement2.setInt(1, studentTestId);
+                    ResultSet resultSet2 = preparedStatement2.executeQuery();
+
+                    if (resultSet2.next() && resultSet2.getInt(1) == studentId) {
+                        int count = 0;
+                        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM student_test_question WHERE test_id = ?")) {
+                            preparedStatement.setInt(1, studentTestId);
+                            ResultSet resultSet = preparedStatement.executeQuery();
+
+                            while (resultSet.next()) {
+                                studentTestQuestionId = resultSet.getInt(1);
+                                questionId = resultSet.getInt(3);
+                                try (PreparedStatement preparedStatement1 = connection.prepareStatement("SELECT text_of_question FROM questions where id = ?")) {
+                                    preparedStatement1.setInt(1, questionId);
+                                    ResultSet resultSet1 = preparedStatement1.executeQuery();
+                                    if (resultSet1.next()) {
+                                        System.out.println("№ вопроса в тесте: " + studentTestQuestionId + "\n" + resultSet1.getString(1));
+                                        numbersOfQuestions.add(studentTestQuestionId);
+                                    }
+
+                                }
                             }
-
                         }
-                    }
+
+                        outPutStudentTestAnswers(numbersOfQuestions);
+
+                    } else System.out.println("Тест не найден.");
                 }
 
-                outPutStudentTestAnswers();
+            }
+        }//else
 
-            }else System.out.println("Тест не найден.");
-        }
+        System.out.println("Спасибо за внимание.");
 
     }
 
-    public void outPutStudentTestAnswers() throws IOException, SQLException {
+    public void outPutStudentTestAnswers(List<Integer> numbersOfQuestions) throws IOException, SQLException {
 
         int answerId;
-        int studentTestQuestionId;
+        int studentTestQuestionId = -1;
 
-        System.out.println("Для просмотра выбранных ответов выберите № вопроса в тесте:");
-        studentTestQuestionId = digitInput();
+        while (studentTestQuestionId != 0) {
 
-        try(PreparedStatement preparedStatement = connection.prepareStatement("SELECT answer_id FROM student_test_answers WHERE student_test_question_id = ?")){
+            boolean flag = false;
 
-            preparedStatement.setInt(1,studentTestQuestionId);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()){
-                answerId = resultSet.getInt(1);
-                //System.out.println("answer_id-------------------------" + answerId);
-                try(PreparedStatement preparedStatement1 = connection.prepareStatement("SELECT * FROM answers WHERE id = ?")){
-                    preparedStatement1.setInt(1, answerId);
-                    ResultSet resultSet1 = preparedStatement1.executeQuery();
-                    while (resultSet1.next()){
-                        System.out.println( resultSet1.getString(2) + " - " + resultSet1.getBoolean(3));
-                    }
-                }
+            System.out.println("Для просмотра выбранных ответов выберите № вопроса в тесте");
+            System.out.println("или введите 'exit' для выхода:");
+
+            studentTestQuestionId = digitInput();
+
+            for (Integer number : numbersOfQuestions) {
+                if (number == studentTestQuestionId) flag = true;
             }
 
+            if (flag) {
+                try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT answer_id FROM student_test_answers WHERE student_test_question_id = ?")) {
+                    preparedStatement.setInt(1, studentTestQuestionId);
+                    ResultSet resultSet = preparedStatement.executeQuery();
+                    while (resultSet.next()) {
+                        answerId = resultSet.getInt(1);
+                        try (PreparedStatement preparedStatement1 = connection.prepareStatement("SELECT * FROM answers WHERE id = ?")) {
+                            preparedStatement1.setInt(1, answerId);
+                            ResultSet resultSet1 = preparedStatement1.executeQuery();
+                            while (resultSet1.next()) {
+                                System.out.println(resultSet1.getString(2) + " - " + resultSet1.getBoolean(3));
+                            }
+                        }
+                    }
+
+                }
+            } else if (studentTestQuestionId != 0) System.out.println("Вопрос не найден" + "\n");
+
         }
+        //System.out.println("Спасибо за внимание.");
+
 
     }
 
@@ -140,18 +168,17 @@ public class OutPutResultsFromDBase implements AutoCloseable{
         String input;
         int outPut;
 
-        //try(BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))){
-        //BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-            while (true){
+            while (true) {
                 input = reader.readLine();
-                if (isDigits(input)) {
-                    outPut = Integer.parseInt(input);
-                    break;
+                if (input.equals("exit")) return 0;
+                else {
+                    if (isDigits(input)) {
+                        outPut = Integer.parseInt(input);
+                        break;
+                    }
+                    System.out.println("Неверный ввод.");
                 }
-                System.out.println("Неверный ввод.");
             }
-        //}
-        //reader.close();
         return outPut;
     }
 
